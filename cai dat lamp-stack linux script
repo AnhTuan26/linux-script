@@ -1,0 +1,16 @@
+import os
+
+os.system("apt get update -y")
+
+# Cài đặt apache2
+os.system("apt get install apache2 -y")
+
+# cài đặt mysql-erver
+os.system("apt get install mysql-server -y")
+
+# cài đặt php và các phần mễm hỗ trợ
+os.system("apt get install -y php zip libapache2-mod-php php-dev php-zip php-curl php-pear php-mbstring php-mysql php-gd php-xml curl")
+
+os.system("systemctl restart apache2")
+os.system("systemctl status apache2")
+os.system("php -V")
