@@ -1,0 +1,24 @@
+import os
+
+nginx_dir = "/root/nginx-1.18.0"
+pagespeed_dir = "/root/incubator-pagespeed-ngx"
+
+#Download source code nginx
+os.system("wget http://nginx.org/download/nginx-1.18.0.tar.gz")
+os.system("tar -xvzf nginx-1.18.0.tar.gz")
+
+#Download pagespeed module
+os.system("git clone https://github.com/apache/incubator-pagespeed-ngx.git")
+os.chdir(pagespeed_dir)
+os.system("wget https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz")
+os.system("tar -xvzf 1.13.35.2-x64.tar.gz")
+
+#Compile module
+os.chdir(nginx_dir)
+os.system("./configure --with-compat --add-dynamic-module=/root/incubator-pagespeed-ngx")
+os.system("make")
+
+os.chdir(nginx_dir)
+os.system("cp objs/ngx_pagespeed.so /usr/share/nginx/modules/")
+os.system("mkdir -p /var/ngx_pagespeed_cache")
+print("Done")
