@@ -1,0 +1,27 @@
+import os
+db_name = "wordpress"
+db_user = "wordpress_user"
+db_password = "your_password"
+
+os.system("sudo mysql -e 'CREATE DATABASE {};'".format(db_name))
+os.system("sudo mysql -e 'CREATE USER {}@localhost IDENTIFIED BY \"{}\";'".format(db_user, db_password))
+os.system("sudo mysql -e 'GRANT ALL PRIVILEGES ON {}.* TO {}@localhost;'".format(db_name, db_user))
+os.system("sudo mysql -e 'FLUSH PRIVILEGES;'")
+
+# download and install WordPress
+os.system("mkdir /var/www/wordpress")
+os.chdir("/var/www/wordpress")
+os.system("sudo wget https://wordpress.org/latest.tar.gz")
+os.system("sudo tar -xvzf latest.tar.gz")
+os.system("sudo mv wordpress/* .")
+os.system("sudo rm -rf wordpress latest.tar.gz")
+
+# Cấu hình file wp-config
+os.system("sudo mv wp-config-sample.php wp-config.php")
+os.system("sudo sed -i 's/database_name_here/{}/g' wp-config.php".format(db_name))
+os.system("sudo sed -i 's/username_here/{}/g' wp-config.php".format(db_user))
+os.system("sudo sed -i 's/password_here/{}/g' wp-config.php".format(db_password))
+os.system("sudo chown -R www-data:www-data /var/www/html")
+
+
+print("WordPress đã được cài đặt thành công.")
