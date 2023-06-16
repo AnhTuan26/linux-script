@@ -1,0 +1,38 @@
+import os
+import time
+import datetime
+import subprocess
+
+# Thông tin kết nối MySQL
+mysql_host = 'database hostname'
+mysql_user = 'user_name'
+mysql_password = 'password'
+mysql_database = 'database name'
+
+# Thư mục đích để lưu trữ các tệp sao lưu
+backup_directory = '/home/user/backups/'
+
+# Số lượng bản sao lưu tối đa để giữ lại
+max_backup_files = 3
+
+# Tạo tên tệp sao lưu dựa trên ngày giờ hiện tại
+current_time = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+backup_file = f'{mysql_database}_{current_time}.sql'
+
+# Tạo chuỗi lệnh để thực thi
+command = f'mysqldump --opt --host={mysql_host} --user={mysql_user} --password={mysql_password} {mysql_database} > {backup_directory}/{backup_file}'
+
+# Thực thi lệnh sao lưu
+subprocess.call(command, shell=True)
+
+# In thông báo thành công
+print(f'Sao lưu cơ sở dữ liệu {mysql_database} đã được tạo thành công: {backup_file}')
+
+# Xóa các bản sao lưu cũ hơn nếu có nhiều hơn max_backup_files
+backup_files = sorted(os.listdir(backup_directory))
+if len(backup_files) > max_backup_files:
+    files_to_delete = backup_files[:-max_backup_files]
+    for file_name in files_to_delete:
+        file_path = os.path.join(backup_directory, file_name)
+        os.remove(file_path)
+        print(f'Đã xóa bản sao lưu cũ: {file_name}')
