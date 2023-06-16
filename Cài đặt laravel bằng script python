@@ -1,0 +1,18 @@
+import os
+
+# Cài đặt composer
+os.system("curl -sS https://getcomposer.org/installer | php")
+os.system("sudo mv -v composer.phar /usr/local/bin/composer")
+
+# Di chuyển vào thư mục /var/www
+os.chdir("/var/www")
+
+# Cài đặt Laravel
+os.system("composer create-project --prefer-dist laravel/laravel laravel")
+
+# Phân quyền thư mục Laravel
+os.system("sudo chown -R www-data:www-data /var/www/laravel")
+os.system("sudo chmod -R 755 /var/www/laravel/storage")
+
+# Hiển thị thông tin cài đặt
+print("Laravel đã được cài đặt thành công.")
