@@ -1,0 +1,17 @@
+import os
+# Cài đặt nginx
+os.system("apt-get update")
+os.system("apt-get install nginx -y")
+
+# Cài đặt mysql 
+os.system("sudo apt install -y mysql-server")
+
+# Cài đặt php và các phần mềm hỗ trợ
+os.system("sudo apt install -y php zip php-dev php-fpm php-zip php-curl php-pear php-mbstring php-mysql php-gd php-xml curl ")
+
+# Cấu hình nginx 
+os.system("sudo cp -v /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bk")
+os.system("sudo sed -i 's/index index.html index.htm index.nginx-debian.html;/index index.php index.html index.htm;/g' /etc/nginx/sites-available/default")
+os.system("sudo systemctl restart nginx")
+os.system("php -V")
+os.system("sudo systemctl status nginx")
