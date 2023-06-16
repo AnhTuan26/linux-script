@@ -1,0 +1,57 @@
+#Trước khi chạy file cần phải cài đặt các gói pip cần thiết và khởi tạo project & api & quyền truy cập googledrive
+#pip install google-api-python-client
+#pip install google-auth-httplib2
+#pip install google-auth-oauthlib
+
+
+import os
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.http import MediaFileUpload
+from google.auth.transport.requests import Request
+
+SCOPES = ["https://www.googleapis.com/auth/drive"]
+# Thư mục chứa các tệp sao lưu
+backup_directory = '/home/user/backups'
+
+# ID thư mục trên Google Drive để đồng bộ hóa
+google_drive_folder_id = '#ID của thư mục trên googledrive'
+
+# Bước này cần enable api của google drive và download file xác thực json
+# Khai báo đường dẫn tới file JSON chứa thông tin xác thực OAuth 2.0
+credentials_file = '/home/tuan/Desktop/backup-script/credential.json'
+# hàm authorize sử dụng để xác thực và tạo thông tin xác thực và trả về file chứa thông tin xác thực
+def authorize(credentials_file):
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json')
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(credentials_file, ['https://www.googleapis.com/auth/drive'])
+            creds = flow.run_local_server(port=0)
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    return creds
+# hàm này sử dụng để upload file lên google drive
+def upload_to_google_drive(file_path, folder_id):
+    creds = authorize(credentials_file)
+    service = build('drive', 'v3', credentials=creds)
+    file_name = os.path.basename(file_path)
+    file_metadata = {
+        'name': file_name,
+        'parents': [folder_id]
+    }
+    media = MediaFileUpload(file_path, resumable=True)
+    file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    print('Uploaded', file_name, 'to Google Drive with ID:', file.get('id'))
+
+# Lấy danh sách các tệp sao lưu
+backup_files = os.listdir(backup_directory)
+
+# Đồng bộ hóa từng tệp lên Google Drive
+for file_name in backup_files:
+    file_path = os.path.join(backup_directory, file_name)
+    upload_to_google_drive(file_path, google_drive_folder_id)
