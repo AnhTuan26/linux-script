@@ -1,0 +1,34 @@
+import psutil
+import requests
+# Khai báo api token và chat id của telegram
+API_TOKEN = 'YOUR_TELEGRAM_API_TOKEN'
+CHAT_ID = 'YOUR_CHAT_ID'
+# xác định ngưỡng cảnh báo của ram và cpu
+RAM_THRESHOLD = 80  # Ngưỡng RAM cao (phần trăm)
+CPU_THRESHOLD = 80  # Ngưỡng CPU cao (phần trăm)
+# hàm send telegram sẽ thực hiện gửi tin nhắn tới telegram nếu request không thực hiện được sẽ xuất ra chuỗi báo lỗi 
+def send_telegram_message(message):
+    url = f'https://api.telegram.org/bot{API_TOKEN}/sendMessage'
+    data = {'chat_id': CHAT_ID, 'text': message}
+    response = requests.post(url, json=data)
+    if response.status_code != 200:
+        print(f"Failed to send message: {response.status_code} {response.text}")
+# hàm check system sử dụng module psutil để truy xuất mức sử dụng của cpu và ram
+def check_system_stats():
+    ram_percent = psutil.virtual_memory().percent
+    cpu_percent = psutil.cpu_percent(interval=1)
+    return ram_percent, cpu_percent
+# hàm main sẽ quyết định gửi cảnh báo đến telegram hay không tùy vào mức %cpu hoặc ram
+def main():
+    ram_percent, cpu_percent = check_system_stats()
+
+    if ram_percent > RAM_THRESHOLD:
+        message = f"RAM usage is high: {ram_percent}%"
+        send_telegram_message(message)
+
+    if cpu_percent > CPU_THRESHOLD:
+        message = f"CPU usage is high: {cpu_percent}%"
+        send_telegram_message(message)
+
+if __name__ == '__main__':
+    main()
